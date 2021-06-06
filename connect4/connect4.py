@@ -56,17 +56,21 @@ class VisualBoard:
         return [x * (self.DISC_SIZE + self.GAP) + self.GAP for x in range(self.n_rows)]
 
     @property
-    def size(self):
-        return self.GAP + (self.DISC_SIZE + self.GAP) * self.n_cols, \
-               self.GAP + (self.DISC_SIZE + self.GAP) * self.n_rows
+    def space_size(self):
+        return self.DISC_SIZE + self.GAP
+
+    @property
+    def screen_size(self):
+        return self.GAP + self.space_size * self.n_cols, \
+               self.GAP + self.space_size * (self.n_rows + 1)
 
     def draw_board(self):
-        screen = pygame.display.set_mode(self.size)
+        screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("Connect 4 but Worse")
         screen.fill(BLUE)
         for i, r in enumerate(self.board.state[::-1]):
             for j, c in enumerate(r):
-                space = Space(self.x_list[j], self.y_list[i])
+                space = Space(self.x_list[j], self.space_size + self.y_list[i])
                 space.color = COLOR_MAP[c]
                 space.draw(screen)
         pygame.display.flip()
