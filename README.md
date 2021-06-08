@@ -16,3 +16,7 @@ Run `connect4.py` to run the visual form of game. It is written using PyGame.
 python connect4.py
 ```
 
+## References
+Thanks to the following sources for idea and implementation
+1. https://github.com/KeithGalli/Connect4-Python
+2. https://codereview.stackexchange.com/a/234301

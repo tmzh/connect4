@@ -45,12 +45,13 @@ class Board:
         return self.state[self.n_rows - 1, col] == 0
 
     def make_move(self, col: int):
-        zero_index = get_next_zero_index(self.state[:, col])
-        self.state[zero_index, col] = self.current_player
-        if self.has_current_player_won():
-            self.game_over = True
-        else:
-            self.current_player, self.next_player = self.next_player, self.current_player
+        if self._is_valid_drop(col):
+            zero_index = get_next_zero_index(self.state[:, col])
+            self.state[zero_index, col] = self.current_player
+            if self.has_current_player_won():
+                self.game_over = True
+            else:
+                self.current_player, self.next_player = self.next_player, self.current_player
 
     def has_current_player_won(self) -> bool:
         strides = np.lib.stride_tricks.sliding_window_view(self.state, (self.win_length, self.win_length))
