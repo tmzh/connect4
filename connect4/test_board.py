@@ -2,21 +2,23 @@ from board import Board, get_next_zero_index, check_sub_matrix_for_win
 import numpy as np
 import pytest
 
+from player import CliPlayer, GuiPlayer
+
 
 def test_create_board_using_defaults():
-    test_board = Board()
+    test_board = Board(CliPlayer(1), CliPlayer(2))
     assert (test_board.state == np.zeros((5, 7), dtype=np.int8)).all()
-    assert test_board.next_player == 2
+    assert test_board.current_player.player_id == 1
+    assert test_board.next_player.player_id == 2
 
 
 def test_create_custom_board():
-    test_board = Board(9, 9)
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=9, n_cols=9)
     assert (test_board.state == np.zeros((9, 9), dtype=np.int8)).all()
-    assert test_board.next_player == 2
 
 
 def test_is_drop_valid():
-    test_board = Board(2, 2)
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=2, n_cols=2)
 
     assert test_board._is_valid_drop(0)
 
@@ -31,22 +33,35 @@ def test_is_drop_valid():
     assert not test_board._is_valid_drop(0)
 
 
-def test_make_move():
-    test_board = Board(3, 3, 3)
+def test_make_move(monkeypatch):
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=3, n_cols=3, win_length=3)
+    monkeypatch.setattr('player.CliPlayer.next_move', lambda x, y: 2)
 
     test_board.state[:, 1] = np.array([1, 0, 0], dtype=np.int8)
     test_board.state[:, 2] = np.array([2, 1, 0], dtype=np.int8)
 
-    test_board.make_move(col=1)
-    test_board.make_move(col=2)
+    test_board.make_move()
 
     assert (test_board.state == np.array([[0, 1, 2],
-                                          [0, 1, 1],
+                                          [0, 0, 1],
+                                          [0, 0, 1]], dtype=np.int8)).all()
+
+
+def test_make_move_ignores_invalid_moves(monkeypatch):
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=3, n_cols=3, win_length=3)
+    monkeypatch.setattr('player.CliPlayer.next_move', lambda x, y: 2)
+
+    test_board.state[:, 2] = np.array([2, 1, 2], dtype=np.int8)
+
+    test_board.make_move()
+
+    assert (test_board.state == np.array([[0, 0, 2],
+                                          [0, 0, 1],
                                           [0, 0, 2]], dtype=np.int8)).all()
 
 
 def test_current_player_win_scenario():
-    test_board = Board(3, 3, 2)
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=3, n_cols=3, win_length=2)
 
     test_board.state[:, 0] = np.array([1, 1, 0], dtype=np.int8)
 

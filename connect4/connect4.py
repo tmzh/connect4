@@ -2,6 +2,7 @@ import bisect
 import pygame
 
 from board import Board
+from player import GuiPlayer, RandomPlayer
 
 pygame.init()
 YELLOW = pygame.color.THECOLORS['yellow']
@@ -38,6 +39,8 @@ class VisualBoard:
 
     def __call__(self):
         while not self.board.game_over:
+            if not isinstance(board.current_player, GuiPlayer):
+                board.make_move()
             for event in pygame.event.get():
                 (pos_x, pos_y) = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
@@ -46,7 +49,9 @@ class VisualBoard:
                     self.mouse_x = pos_x
                 if event.type == pygame.MOUSEBUTTONUP:
                     column_num = bisect.bisect(self.x_list, pos_x) - 1
-                    board.make_move(column_num)
+                    if isinstance(board.current_player, GuiPlayer):
+                        board.current_player.set_next_move(column_num)
+                    board.make_move()
             self.draw_board()
         if self.board.game_over:
             pygame.time.wait(3000)
@@ -76,12 +81,12 @@ class VisualBoard:
         screen.fill(BLUE)
         pygame.draw.rect(screen, BLACK, (0, 0, self.screen_size[0], 2*self.COIN_SIZE))
         if self.mouse_x:
-            self.draw_space(self.board.current_player, self.mouse_x - self.COIN_SIZE // 2,
+            self.draw_space(self.board.current_player.player_id, self.mouse_x - self.COIN_SIZE // 2,
                             self.COIN_SIZE - self.GAP, screen)
         if self.board.game_over:
-            self.display_text(screen, f"Player {self.board.current_player} won the game")
+            self.display_text(screen, f"Player {self.board.current_player.player_id} won the game")
         else:
-            self.display_text(screen, f"{self.board.current_player}'s turn")
+            self.display_text(screen, f"Player {self.board.current_player.player_id}'s turn")
         for i, r in enumerate(self.board.state[::-1]):
             for j, c in enumerate(r):
                 self.draw_space(c, self.x_list[j], self.space_size * 2 + self.y_list[i], screen)
@@ -89,7 +94,7 @@ class VisualBoard:
 
     def display_text(self, screen, text):
         my_font = pygame.font.SysFont("Arial", 48)
-        label = my_font.render(text, 1, (255, 255, 0))
+        label = my_font.render(text, True, (255, 255, 0))
         screen.blit(label, (self.GAP, self.GAP))
 
     def draw_space(self, c, i, j, screen):
@@ -98,7 +103,7 @@ class VisualBoard:
         space.draw(screen)
 
 
-board = Board()
+board = Board(GuiPlayer(1), RandomPlayer(2, delay=True))
 connect4board = VisualBoard(board)
 connect4board()
 

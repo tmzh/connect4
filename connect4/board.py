@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import curses
+
 import numpy as np
+from player import Player, CliPlayer
 
 ROW_COUNT = 5
 COL_COUNT = 7
@@ -26,14 +29,16 @@ def check_sub_matrix_for_win(arr: np.array, player_value: int) -> bool:
 
 
 class Board:
-    def __init__(self, n_rows: int = ROW_COUNT, n_cols: int = COL_COUNT, win_length: int = WIN_LENGTH):
+    def __init__(self, first_player: Player, second_player: Player, n_rows: int = ROW_COUNT, n_cols: int = COL_COUNT,
+                 win_length: int = WIN_LENGTH):
         self.win_length = win_length
         self.n_rows = n_rows
         self.n_cols = n_cols
         self.state = np.zeros((n_rows, n_cols), dtype=np.int8)
-        self.current_player = 1
-        self.next_player = 2
+        self.current_player = first_player
+        self.next_player = second_player
         self.game_over = False
+        self.winner = None
 
     def __repr__(self):
         return str(np.flip(self.state, axis=0))
@@ -44,12 +49,14 @@ class Board:
     def _is_valid_drop(self, col: int) -> bool:
         return self.state[self.n_rows - 1, col] == 0
 
-    def make_move(self, col: int):
+    def make_move(self):
+        col = self.current_player.next_move(self.state)
         if self._is_valid_drop(col):
             zero_index = get_next_zero_index(self.state[:, col])
-            self.state[zero_index, col] = self.current_player
+            self.state[zero_index, col] = self.current_player.player_id
             if self.has_current_player_won():
                 self.game_over = True
+                self.winner = self.current_player
             else:
                 self.current_player, self.next_player = self.next_player, self.current_player
 
@@ -57,14 +64,8 @@ class Board:
         strides = np.lib.stride_tricks.sliding_window_view(self.state, (self.win_length, self.win_length))
         for horizontal_stride in strides:
             for sub_matrix in horizontal_stride:
-                if check_sub_matrix_for_win(sub_matrix, self.current_player):
+                if check_sub_matrix_for_win(sub_matrix, self.current_player.player_id):
                     return True
         return False
 
 
-if __name__ == "__main__":
-    board = Board()
-    while not board.game_over:
-        next_col = int(input(f"Enter the next move for {board.current_player}: "))
-        board.make_move(next_col)
-        print(board)
