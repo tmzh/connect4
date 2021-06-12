@@ -1,4 +1,6 @@
 import bisect
+import time
+
 import pygame
 
 from board import Board
@@ -79,7 +81,7 @@ class VisualBoard:
         screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("Connect 4")
         screen.fill(BLUE)
-        pygame.draw.rect(screen, BLACK, (0, 0, self.screen_size[0], 2*self.COIN_SIZE))
+        pygame.draw.rect(screen, BLACK, (0, 0, self.screen_size[0], 2 * self.COIN_SIZE))
         if self.mouse_x:
             self.draw_space(self.board.current_player.player_id, self.mouse_x - self.COIN_SIZE // 2,
                             self.COIN_SIZE - self.GAP, screen)
@@ -103,7 +105,7 @@ class VisualBoard:
         space.draw(screen)
 
 
-board = Board(GuiPlayer(1), RandomPlayer(2, delay=True))
+board = Board(GuiPlayer(1), RandomPlayer(2))
 connect4board = VisualBoard(board)
 connect4board()
 

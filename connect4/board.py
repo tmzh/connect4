@@ -47,7 +47,14 @@ class Board:
         return (self.state == other.state).all() and (self.next_player == other.next_player)
 
     def _is_valid_drop(self, col: int) -> bool:
-        return self.state[self.n_rows - 1, col] == 0
+        return np.isin(col, self.valid_moves)
+
+    def _is_board_full(self) -> bool:
+        return not (self.state == 0).any()
+
+    @property
+    def valid_moves(self):
+        return np.where(self.state[self.n_rows - 1, :] == 0)
 
     def make_move(self):
         col = self.current_player.next_move(self.state)
@@ -59,6 +66,8 @@ class Board:
                 self.winner = self.current_player
             else:
                 self.current_player, self.next_player = self.next_player, self.current_player
+        if self._is_board_full():
+            self.game_over = True
 
     def has_current_player_won(self) -> bool:
         strides = np.lib.stride_tricks.sliding_window_view(self.state, (self.win_length, self.win_length))
@@ -67,5 +76,3 @@ class Board:
                 if check_sub_matrix_for_win(sub_matrix, self.current_player.player_id):
                     return True
         return False
-
-

@@ -68,6 +68,17 @@ def test_current_player_win_scenario():
     assert test_board.has_current_player_won()
 
 
+def test_when_board_is_full_game_ends_with_no_winner(monkeypatch):
+    test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=3, n_cols=3, win_length=2)
+    test_board.state = np.ones((3, 3))
+    monkeypatch.setattr('player.CliPlayer.next_move', lambda x, y: 2)
+
+    test_board.make_move()
+
+    assert test_board.game_over
+    assert not test_board.winner
+
+
 @pytest.mark.parametrize("arr, last_non_zero", [
     (np.array([2, 1, 0]), 2),
     (np.array([2, 0, 0]), 1),

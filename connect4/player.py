@@ -33,12 +33,9 @@ class CliPlayer(Player):
 
 
 class RandomPlayer(Player):
-    def __init__(self, player_id, delay=False):
+    def __init__(self, player_id):
         super().__init__(player_id)
-        self.delay = delay
 
     def next_move(self, state):
         no_cols = state.shape[-1]
-        if self.delay:
-            time.sleep(1)
         return random.randint(0, no_cols - 1)
