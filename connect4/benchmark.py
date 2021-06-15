@@ -1,7 +1,7 @@
 import time
 
 from board import Board
-from player import RandomPlayer
+from player import MiniMaxPlayer, RandomPlayer
 
 
 def play(player_1, player_2):
@@ -16,7 +16,7 @@ def play(player_1, player_2):
         return False, steps
 
 
-def benchmark(player_1, player_2=RandomPlayer(2), name='', n_runs=100):
+def benchmark(player_1, player_2, name='', n_runs=10):
     def time_solve():
         start = time.time()
         player_1_won, steps = play(player_1, player_2)
@@ -30,4 +30,4 @@ def benchmark(player_1, player_2=RandomPlayer(2), name='', n_runs=100):
 
 
 if __name__ == "__main__":
-    benchmark(RandomPlayer(1), RandomPlayer(2))
+    benchmark(MiniMaxPlayer(1), RandomPlayer(2))

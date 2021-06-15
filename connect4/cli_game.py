@@ -1,9 +1,9 @@
 from board import Board
-from player import CliPlayer, RandomPlayer
+from player import CliPlayer, MiniMaxPlayer
 
 
 if __name__ == "__main__":
-    board = Board(CliPlayer(1), RandomPlayer(2))
+    board = Board(CliPlayer(1), MiniMaxPlayer(2))
     print(board)
     while not board.game_over:
         board.make_move()

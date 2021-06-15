@@ -4,7 +4,7 @@ import time
 import pygame
 
 from board import Board
-from player import GuiPlayer, RandomPlayer
+from player import GuiPlayer, MiniMaxPlayer
 
 pygame.init()
 YELLOW = pygame.color.THECOLORS['yellow']
@@ -105,7 +105,7 @@ class VisualBoard:
         space.draw(screen)
 
 
-board = Board(GuiPlayer(1), RandomPlayer(2))
+board = Board(GuiPlayer(1), MiniMaxPlayer(2))
 connect4board = VisualBoard(board)
 connect4board()
 

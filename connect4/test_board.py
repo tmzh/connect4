@@ -1,4 +1,4 @@
-from board import Board, get_next_zero_index, check_sub_matrix_for_win
+from board import Board, get_next_zero_index, check_sub_matrix_for_win, evaluate_state_for_player
 import numpy as np
 import pytest
 
@@ -20,17 +20,17 @@ def test_create_custom_board():
 def test_is_drop_valid():
     test_board = Board(CliPlayer(1), CliPlayer(2), n_rows=2, n_cols=2)
 
-    assert test_board._is_valid_drop(0)
+    assert test_board.is_valid_drop(0)
 
     test_board.state[0] = 1
-    assert test_board._is_valid_drop(0)
+    assert test_board.is_valid_drop(0)
 
     test_board.state[:, 0] = 1
-    assert test_board._is_valid_drop(1)
-    assert not test_board._is_valid_drop(0)
+    assert test_board.is_valid_drop(1)
+    assert not test_board.is_valid_drop(0)
 
     test_board.state = np.ones((2, 2))
-    assert not test_board._is_valid_drop(0)
+    assert not test_board.is_valid_drop(0)
 
 
 def test_make_move(monkeypatch):
@@ -65,7 +65,7 @@ def test_current_player_win_scenario():
 
     test_board.state[:, 0] = np.array([1, 1, 0], dtype=np.int8)
 
-    assert test_board.has_current_player_won()
+    assert test_board.has_player_won()
 
 
 def test_when_board_is_full_game_ends_with_no_winner(monkeypatch):
@@ -104,6 +104,28 @@ def test_get_last_zero_index(arr, last_non_zero):
 ])
 def test_sub_matrix_wins_are_matched(arr, player_value):
     assert check_sub_matrix_for_win(arr, player_value)
+
+
+@pytest.mark.parametrize("state, player_value", [
+    (np.array([[1, 1, 1, 1],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0],
+               [0, 0, 0, 0]]), 100),
+    (np.array([[1, 0, 0, 0],
+               [1, 0, 0, 0],
+               [0, 0, 0, 0],
+               [1, 0, 0, 0]]), 5),
+    (np.array([[1, 0, 0, 0],
+               [0, 1, 1, 0],
+               [0, 1, 1, 0],
+               [0, 0, 0, 0]]), 15),
+    (np.array([[0, 0, 0, 2],
+               [0, 0, 2, 0],
+               [0, 2, 0, 0],
+               [2, 0, 0, 0]]), -100),
+])
+def test_evaluate_state_for_player(state, player_value):
+    assert evaluate_state_for_player(state, 4, 1) == player_value
 
 
 if __name__ == "__main__":
