@@ -31,4 +31,4 @@ jobs:
       - name: Test with pytest
         working-directory: ./connect4
         run: |
-          pytest
+          python test_board.py
