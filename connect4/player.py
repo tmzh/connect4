@@ -2,6 +2,7 @@ import copy
 import math
 import random
 from abc import ABC
+from typing import Tuple, Any
 
 
 class Player(ABC):
@@ -47,26 +48,24 @@ class MiniMaxPlayer(Player):
     def __init__(self, player_id):
         super().__init__(player_id)
 
-    def minimax(self, board, depth, maximising_player):
+    def minimax(self, board, state, depth, maximising_player) -> Tuple[Any, int]:
         if board.game_over:
-            if board.has_player_won(board.state, self.player_id):
-                return None, math.inf
-            if board.has_player_won(board.state, self.opponent_id):
-                return None, -math.inf
+            if board.has_player_won(state, self.player_id):
+                return None, 10**10
+            if board.has_player_won(state, self.opponent_id):
+                return None, -10**10
             else:
                 return None, 0
         if depth == 0:
-            score = board.score_for_player(self.player_id)
-            # print(f"Score for player {self.player_id} in board \n {board.state!s} is {score}]")
+            score = board.score_for_player(state, self.player_id)
             return None, score
 
-        column = random.choice(board.valid_moves(board.state))
+        column = random.choice(board.valid_moves(state))
         if maximising_player:
             value = -math.inf
-            for col in board.valid_moves(board.state):
-                b_copy = copy.deepcopy(board)
-                b_copy.eval_move(col, self.player_id)
-                new_score = self.minimax(b_copy, depth - 1, False)[1]
+            for col in board.valid_moves(state):
+                new_state = board.eval_move(state, col, self.player_id)
+                new_score = self.minimax(board, new_state, depth - 1, False)[1]
                 if new_score > value:
                     value = new_score
                     column = col
@@ -74,16 +73,14 @@ class MiniMaxPlayer(Player):
 
         if not maximising_player:
             value = math.inf
-            for col in board.valid_moves(board.state):
-                b_copy = copy.deepcopy(board)
-                b_copy.eval_move(col, self.opponent_id)
-                new_score = self.minimax(b_copy, depth - 1, True)[1]
+            for col in board.valid_moves(state):
+                new_state = board.eval_move(state, col, self.opponent_id)
+                new_score = self.minimax(board, new_state, depth - 1, True)[1]
                 if new_score < value:
                     value = new_score
                     column = col
             return column, value
 
     def next_move(self, board):
-        b_copy = copy.deepcopy(board)
-        col, minimax_score = self.minimax(b_copy, 5, True)
+        col, minimax_score = self.minimax(board, board.state, 3, True)
         return col

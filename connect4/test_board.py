@@ -65,7 +65,7 @@ def test_current_player_win_scenario():
 
     test_board.state[:, 0] = np.array([1, 1, 0], dtype=np.int8)
 
-    assert test_board.has_player_won()
+    assert test_board.has_player_won(test_board.state, 1)
 
 
 def test_when_board_is_full_game_ends_with_no_winner(monkeypatch):
@@ -122,7 +122,7 @@ def test_sub_matrix_wins_are_matched(arr, player_value):
     (np.array([[0, 0, 0, 2],
                [0, 0, 2, 0],
                [0, 2, 0, 0],
-               [2, 0, 0, 0]]), -100),
+               [2, 0, 0, 0]]), -99),
 ])
 def test_evaluate_state_for_player(state, player_value):
     assert evaluate_state_for_player(state, 4, 1) == player_value

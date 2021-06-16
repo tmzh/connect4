@@ -49,8 +49,6 @@ def score_array(arr: np.array, player_id):
             score -= 99
         if np.count_nonzero(arr) == 3:
             score -= 4
-        elif np.count_nonzero(arr) == 2:
-            score -= 1
     return score
 
 
@@ -95,18 +93,15 @@ class Board:
     def valid_moves(self, state):
         return np.where(state[self.n_rows - 1, :] == 0)[0]
 
-    def score_for_player(self, player_id):
-        return evaluate_state_for_player(self.state, self.win_length, player_id)
+    def score_for_player(self, state, player_id):
+        return evaluate_state_for_player(state, self.win_length, player_id)
 
-    def eval_move(self, col, player_id):
-        zero_index = get_next_zero_index(self.state[:, col])
-        self.state[zero_index, col] = player_id
-        # if self.has_player_won(self.state, player_id):
-        #     self.game_over = True
-        #     self.winner = self.current_player
-        # if self._is_board_full():
-        #     self.game_over = True
-        pass
+    @staticmethod
+    def eval_move(state, col, player_id):
+        s_copy = state.copy()
+        zero_index = get_next_zero_index(s_copy[:, col])
+        s_copy[zero_index, col] = player_id
+        return s_copy
 
     def make_move(self):
         col = self.current_player.next_move(self)
