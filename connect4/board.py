@@ -23,43 +23,46 @@ def evaluate_state_for_player(state: np.array, win_length, curr_player_id: int) 
     return score
 
 
-def evaluate_score_for_player_in_sub_matrix(arr: np.array, curr_player_id: int) -> int:
+def evaluate_score_for_player_in_sub_matrix(mat: np.array, curr_player_id: int) -> int:
+    arrays = get_all_blocks_in_matrix(mat)
+    score = sum(map(lambda a: score_block(a.tolist(), curr_player_id), arrays))
+    return score
+
+
+def get_all_blocks_in_matrix(arr):
     rows = [arr[x, :] for x in range(arr.shape[0])]
     cols = [arr[:, x] for x in range(arr.shape[1])]
     d1 = np.diag(arr)
     d2 = np.diag(np.fliplr(arr))
-    arrays = [*rows, *cols, d1, d2]
-    score = sum(map(lambda a: score_array(a.tolist(), curr_player_id), arrays))
-    return score
+    blocks = [*rows, *cols, d1, d2]
+    return blocks
 
 
-def score_array(arr: list, player_id):
+def score_block(block: list, player_id):
     opp_player_id = 1 + player_id % 2
     score = 0
-    if arr.count(player_id) == 4:
+    player_blocks = block.count(player_id)
+    opp_blocks = block.count(opp_player_id)
+    win_length = len(block)
+
+    if player_blocks == win_length:
         score += 100
-    elif arr.count(player_id) == 3 and arr.count(opp_player_id) == 0:
+    elif player_blocks == win_length - 1 and opp_blocks == 0:
         score += 5
-    elif arr.count(player_id) == 2 and arr.count(opp_player_id) == 0:
+    elif player_blocks == win_length - 2 and opp_blocks == 0:
         score += 2
-    elif arr.count(opp_player_id) == 4:
+    elif opp_blocks == win_length:
         score -= 99
-    elif arr.count(opp_player_id) == 3 and arr.count(player_id) == 0:
+    elif opp_blocks == win_length - 1 and player_blocks == 0:
         score -= 4
     return score
 
 
-def check_sub_matrix_for_win(arr: np.array, player_id: int) -> bool:
-    for row in arr:
-        if (row == player_id).all():
+def check_sub_matrix_for_win(mat: np.array, player_id: int) -> bool:
+    blocks = get_all_blocks_in_matrix(mat)
+    for arr in blocks:
+        if arr.tolist().count(player_id) == len(arr):
             return True
-    for col in arr.T:
-        if (col == player_id).all():
-            return True
-    if (np.diag(arr) == player_id).all():
-        return True
-    if (np.diag(np.fliplr(arr)) == player_id).all():
-        return True
     return False
 
 

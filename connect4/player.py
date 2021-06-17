@@ -1,4 +1,3 @@
-import copy
 import math
 import random
 from abc import ABC
@@ -48,7 +47,7 @@ class MiniMaxPlayer(Player):
     def __init__(self, player_id):
         super().__init__(player_id)
 
-    def minimax(self, board, state, depth, maximising_player) -> Tuple[Any, int]:
+    def minimax(self, board, state, depth, alpha, beta, maximising_player) -> Tuple[Any, int]:
         if board.game_over:
             if board.has_player_won(state, self.player_id):
                 return None, 10**10
@@ -65,22 +64,28 @@ class MiniMaxPlayer(Player):
             value = -math.inf
             for col in board.valid_moves(state):
                 new_state = board.eval_move(state, col, self.player_id)
-                new_score = self.minimax(board, new_state, depth - 1, False)[1]
+                new_score = self.minimax(board, new_state, depth - 1, alpha, beta, False)[1]
                 if new_score > value:
                     value = new_score
                     column = col
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
             return column, value
 
         if not maximising_player:
             value = math.inf
             for col in board.valid_moves(state):
                 new_state = board.eval_move(state, col, self.opponent_id)
-                new_score = self.minimax(board, new_state, depth - 1, True)[1]
+                new_score = self.minimax(board, new_state, depth - 1, alpha, beta, True)[1]
                 if new_score < value:
                     value = new_score
                     column = col
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
             return column, value
 
     def next_move(self, board):
-        col, minimax_score = self.minimax(board, board.state, 3, True)
+        col, minimax_score = self.minimax(board, board.state, 5, -math.inf, math.inf, True)
         return col
