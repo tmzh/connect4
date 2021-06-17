@@ -24,31 +24,28 @@ def evaluate_state_for_player(state: np.array, win_length, curr_player_id: int) 
 
 
 def evaluate_score_for_player_in_sub_matrix(arr: np.array, curr_player_id: int) -> int:
-    score = 0
-    for row in arr:
-        score += score_array(row, curr_player_id)
-    for col in arr.T:
-        score += score_array(col, curr_player_id)
-    score += score_array(np.diag(arr), curr_player_id)
-    score += score_array(np.diag(np.fliplr(arr)), curr_player_id)
+    rows = [arr[x, :] for x in range(arr.shape[0])]
+    cols = [arr[:, x] for x in range(arr.shape[1])]
+    d1 = np.diag(arr)
+    d2 = np.diag(np.fliplr(arr))
+    arrays = [*rows, *cols, d1, d2]
+    score = sum(map(lambda a: score_array(a.tolist(), curr_player_id), arrays))
     return score
 
 
-def score_array(arr: np.array, player_id):
+def score_array(arr: list, player_id):
     opp_player_id = 1 + player_id % 2
     score = 0
-    if not (arr == opp_player_id).any():
-        if np.count_nonzero(arr) == 4:
-            score += 100
-        elif np.count_nonzero(arr) == 3:
-            score += 5
-        elif np.count_nonzero(arr) == 2:
-            score += 2
-    if not (arr == player_id).any():
-        if np.count_nonzero(arr) == 4:
-            score -= 99
-        if np.count_nonzero(arr) == 3:
-            score -= 4
+    if arr.count(player_id) == 4:
+        score += 100
+    elif arr.count(player_id) == 3 and arr.count(opp_player_id) == 0:
+        score += 5
+    elif arr.count(player_id) == 2 and arr.count(opp_player_id) == 0:
+        score += 2
+    elif arr.count(opp_player_id) == 4:
+        score -= 99
+    elif arr.count(opp_player_id) == 3 and arr.count(player_id) == 0:
+        score -= 4
     return score
 
 
