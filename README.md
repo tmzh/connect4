@@ -1,15 +1,21 @@
 # Connect4
 
-Simple implementation of connect 4 game in Python. 
+An implementation of connect 4 game in Python with AI. The AI implementations includes:
+1. Random 
+2. Minimax with alpha-beta pruning
 
-## Running in CLI
-Run `board.py`  to run the CLI form of the game. Player 1 and 2 take turns to specify the column in which disc should be dropped. The script prints a CLI representation of the game.
+
+## Running interactive games
+The interactive gameplay defaults to human vs Minimax AI player.
+
+### CLI mode
+Run `board.py`  to run the CLI form of the game. 
 
 ```shell
 python board.py
 ```
 
-## Running GUI
+### GUI mode
 Run `connect4.py` to run the visual form of game. It is written using PyGame.
 
 ```shell
