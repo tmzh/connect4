@@ -75,7 +75,8 @@ class Board:
         self.state = np.zeros((n_rows, n_cols), dtype=np.int8)
         self.current_player = first_player
         self.next_player = second_player
-        self.game_over = False
+        self.n_moves = 0
+        self._game_over = False
         self.winner = None
 
     def __repr__(self):
@@ -83,6 +84,17 @@ class Board:
 
     def __eq__(self, other: Board):
         return (self.state == other.state).all() and (self.next_player == other.next_player)
+
+    @property
+    def game_over(self):
+        if self._is_board_full():
+            self._game_over = True
+        return self._game_over 
+
+    @game_over.setter
+    def game_over(self, value):
+        self._game_over = value
+
 
     def is_valid_drop(self, col: int) -> bool:
         return np.isin(col, self.valid_moves(self.state))
@@ -96,8 +108,7 @@ class Board:
     def score_for_player(self, state, player_id):
         return evaluate_state_for_player(state, self.win_length, player_id)
 
-    @staticmethod
-    def eval_move(state, col, player_id):
+    def eval_move(self, state, col, player_id):
         s_copy = state.copy()
         zero_index = get_next_zero_index(s_copy[:, col])
         s_copy[zero_index, col] = player_id
@@ -108,13 +119,12 @@ class Board:
         if self.is_valid_drop(col):
             zero_index = get_next_zero_index(self.state[:, col])
             self.state[zero_index, col] = self.current_player.player_id
+            self.n_moves += 1
             if self.has_player_won(self.state, self.current_player.player_id):
                 self.game_over = True
                 self.winner = self.current_player
             else:
                 self.current_player, self.next_player = self.next_player, self.current_player
-        if self._is_board_full():
-            self.game_over = True
 
     def has_player_won(self, state, player_id) -> bool:
         strides = np.lib.stride_tricks.sliding_window_view(state, (self.win_length, self.win_length))

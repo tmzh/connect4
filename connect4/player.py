@@ -44,8 +44,9 @@ class RandomPlayer(Player):
 
 
 class MiniMaxPlayer(Player):
-    def __init__(self, player_id):
+    def __init__(self, player_id, explore_depth=3):
         super().__init__(player_id)
+        self.explore_depth = explore_depth
 
     def minimax(self, board, state, depth, alpha, beta, maximising_player) -> Tuple[Any, int]:
         if board.game_over:
@@ -87,5 +88,5 @@ class MiniMaxPlayer(Player):
             return column, value
 
     def next_move(self, board):
-        col, minimax_score = self.minimax(board, board.state, 5, -math.inf, math.inf, True)
+        col, minimax_score = self.minimax(board, board.state, self.explore_depth, -math.inf, math.inf, True)
         return col
