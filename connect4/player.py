@@ -49,7 +49,7 @@ class MiniMaxPlayer(Player):
         self.explore_depth = explore_depth
 
     def minimax(self, board, state, depth, alpha, beta, maximising_player) -> Tuple[Any, int]:
-        if board.game_over:
+        if board.game_over or not board.valid_moves(state):
             if board.has_player_won(state, self.player_id):
                 return None, 10**10
             if board.has_player_won(state, self.opponent_id):
